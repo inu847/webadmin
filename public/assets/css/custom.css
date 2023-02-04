@@ -1,0 +1,95 @@
+label{
+    font-size: .8rem
+}
+.errormsg{
+    font-size: .8rem;
+    color: #F00
+}
+.floattrack {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: #FFF;
+    padding: 10px;
+    border: 1px solid #F7F7F7;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    box-shadow: 0 .25rem .125rem 0 rgba(0,0,0,0.07);
+}
+.headerwrap {
+    text-align: center;
+}
+.floatbell{
+    position: fixed;
+    background: #495057;
+    border-radius: 2px;
+    padding: 10px;
+    right: 50px;
+    bottom: 50px;
+    border: 7px solid #F7F7F7;
+    box-shadow: 0 .25rem .125rem 0 rgba(0,0,0,0.07);
+    z-index: 9999;
+    cursor: pointer;
+    color: #FFF;
+    font-size:.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.floatbell i{
+    margin-top: 7px;
+    font-size: 1.5rem;
+    color: #FFF
+}
+.btn-sm{
+    font-size: .7rem;
+    font-weight: bold;
+}
+.errormsg{
+    font-size: 11px;
+}
+@media (max-width: 500px) {
+    .headerwrap {
+        text-align: left;
+    }
+    .header-area .logo {
+        margin-left: 0;
+    }
+    #top .left-content h4 {
+        font-size: 1.5rem;
+    }
+    #top .left-content h6 {
+        font-size: 11px;
+    }
+    .section-heading h6 {
+        margin-top: 30px;
+    }
+    .section-heading h2 {
+        font-size: 1.3rem;
+    }
+    #about .section-heading h2 {
+        padding-right: 0;
+    }
+    .youtubeembed {
+        width: 100%;
+        height: auto;
+    }
+    .dots span {
+        padding: 0;
+    }
+    .dots::after {
+        display: none;
+    }
+    .floattrack {
+        right: 10px;
+    }
+    .floatbell{
+        right: 10px;
+        bottom: 10px;
+        border: 7px solid #FFF;
+    }
+    .floatbell i{
+        font-size: 1.6rem;
+        color: #FFF
+    }
+}

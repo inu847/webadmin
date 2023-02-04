@@ -1,0 +1,204 @@
+<div id="wrapVue">
+    <form id="myForm" @submit.prevent="submitForm" method="post" onsubmit="return false;" enctype="multipart/form-data">
+        <div class="modal-body">
+            <div class="position-relative form-group">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="row" style="margin-bottom: 20px;">
+                            <div class="col-md-6">
+                                <label style="font-weight: bold;">Select Category</label>
+                                <select id="category_id" name="category_id" class="custom-select" onchange="getPosition()">
+                                    <option value="">Select</option>
+                                    @foreach($category as $vcategory)
+                                        <option value="{{ $vcategory['id'] }}">{{ $vcategory['category_name'] }}</option>
+                                    @endforeach
+                                </select>
+                                <div v-if="formErrors['category_id']" class="errormsg alert alert-danger mt-1">
+                                @{{ formErrors['category_id'][0] }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="font-weight: bold;">Category Position</label>
+                                <input type="number" id="category_position" name="category_position" class="form-control" min="1">
+                                <div v-if="formErrors['category_position']" class="errormsg alert alert-danger mt-1">
+                                @{{ formErrors['category_position'][0] }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label style="font-weight: bold;">Select Sub Category</label>
+                                <select id="subcategory_id" name="subcategory_id" class="custom-select" onchange="getPositionSub()">
+                                    <option value="0">Select</option>
+                                    @foreach($subcategory as $vsubcategory)
+                                        <option value="{{ $vsubcategory['id'] }}">{{ $vsubcategory['subcategory_name'] }}</option>
+                                    @endforeach
+                                </select>
+                                <div v-if="formErrors['subcategory_id']" class="errormsg alert alert-danger mt-1">
+                                @{{ formErrors['subcategory_id'][0] }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="font-weight: bold;">Sub Category Position</label>
+                                <input type="number" id="subcategory_position" name="subcategory_position" class="form-control" min="1">
+                                <div v-if="formErrors['subcategory_position']" class="errormsg alert alert-danger mt-1">
+                                @{{ formErrors['subcategory_position'][0] }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3 card text-white card-body bg-info" style="padding-top: 16px;">
+                                    <h5 class="text-white card-title">Add Item(s) to catalog</h5>
+                                    <select id="add_item_to_catalog" class="select2 form-control">
+                                    <!-- <select id="add_item_to_catalog" multiple="multiple" class="multiselect-dropdown form-control"> -->
+                                        <option value="">Select Item</option>
+                                        @foreach($all_items as $kitem => $vitem)
+                                            <option value="{{ $kitem }}">{{ $vitem }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button id="add_item_to_catalog_btn" type="button" class="btn btn-primary mt-3">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="position-relative form-group">
+                <label style="font-weight: bold;">Select Items</label>
+                <div class="row div_catalog_items">
+                    @foreach($items as $vitems)
+                        <div class="col-md-3 mb-3">
+                            <img src="{{ strpos($vitems['item_image_primary'], 'amazonaws.com') !== false ? $vitems['item_image_primary'] : str_replace('scaneat.id', 'scaneat.id/liatmenu.id', myFunction::getProtocol()).$vitems['item_image_primary'].'?'.time() }}" class="img-fluid" style="max-width:100px; max-height:100px;">
+                            <div class="custom-checkbox custom-control mt-2">
+                                <input type="checkbox" id="item{{ $vitems['id'] }}" name="items[]" class="custom-control-input" value="{{ $vitems['id'] }}" />
+                                <label class="custom-control-label" for="item{{ $vitems['id'] }}" style="font-size: 12px;">{{ $vitems['items_name'] }}</label>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Data</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+
+    new Vue({
+        el: "#wrapVue",
+        data() {
+            return {
+                csrf: "",
+                formErrors: {},
+                notif: [],
+            };
+        },
+        mounted: function () {
+            this.csrf = "{{ csrf_token() }}";
+            let self = this;
+            $(document).ready(function() {
+                $("#myForm")[0].reset();
+            });
+            $(document).on("click", "#add_item_to_catalog_btn", function (e) {
+                self.addItem();
+            });
+        },
+        methods: {
+            addItem: function (e) {
+                var action = "{{ url('/catalog/add_catalog_item/'.$catalogid) }}";
+                var csrfToken = "{{ csrf_token() }}";
+                let datas = new FormData();
+                datas.append("items", $("#add_item_to_catalog").val());
+
+                axios.post(action, datas, {
+                        headers: {
+                            "X-CSRF-TOKEN": csrfToken,
+                            Accept: "application/json",
+                        },
+                    })
+                    .then((response) => {
+                        let self = this;
+                        var notif = response.data;
+                        var getstatus = notif.status;
+                        if (getstatus == "success") {
+                            $(".div_catalog_items").html(notif.message);
+                        }else{
+                            toastr.error(notif.message);
+                        }
+                    })
+                    .catch((error) => {
+                        toastr.error('Oh snap! something went wrong');
+                        // $('.errormsg').show();
+                        // this.formErrors = error.response.data.errors;
+                    });
+            },
+            submitForm: function (e) {
+                submitForm();
+                $('.errormsg').hide();
+                var form = e.target || e.srcElement;
+                var action = "{{ url('/catalog/additems/'.$catalogid) }}";
+                var csrfToken = "{{ csrf_token() }}";
+
+                var arritems=[];
+                $("input:checkbox[name*=items]:checked").each(function(){
+                    arritems.push($(this).val());
+                });
+                if(arritems.length < 1){
+                    Swal.fire("Ops!", "Please select item(s).", "error");
+                    afterSubmitForm();
+                    return false;
+                }
+
+                let datas = new FormData();
+                datas.append("catalog_id", "{{ $catalogid }}");
+                datas.append("category_id", $("#category_id").val());
+                datas.append("category_position", $("#category_position").val());
+                datas.append("subcategory_id", $("#subcategory_id").val());
+                datas.append("subcategory_position", $("#subcategory_position").val());
+                datas.append("items", arritems);
+                console.log($('#tree_temp').val());
+                axios.post(action, datas, {
+                        headers: {
+                            "X-CSRF-TOKEN": csrfToken,
+                            Accept: "application/json",
+                        },
+                    })
+                    .then((response) => {
+                        let self = this;
+                        var notif = response.data;
+                        var getstatus = notif.status;
+                        if (getstatus == "success") {
+                            if(notif.tree){
+                                data_menu = notif.tree;
+                                $('#tree_temp').val(data_menu)
+                                console.log(data_menu);
+                            }
+                            $('#btnReload').click();
+                            $("#modalForm").modal("hide");
+                            afterSubmitForm();
+                            // loadView();
+                        }else{
+                            afterSubmitForm();
+                            toastr.error(notif.message);
+                        }
+                    })
+                    .catch((error) => {
+                        afterSubmitForm();
+                        $('.errormsg').show();
+                        // this.formErrors = error.response.data.errors;
+                    });
+                
+            },
+        },
+    });
+</script>

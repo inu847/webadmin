@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/admin/public_html/admin_scaneat
+    - /bin/cp -R ./ $DEPLOYPATH
